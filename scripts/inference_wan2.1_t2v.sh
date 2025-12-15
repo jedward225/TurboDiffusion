@@ -21,7 +21,7 @@ export PYTHONPATH=turbodiffusion
 
 python turbodiffusion/inference/wan2.1_t2v_infer.py \
     --model Wan2.1-1.3B \
-    --dit_path checkpoints/modified/TurboWan2.1-T2V-1.3B-480P-quant.pth \
+    --dit_path checkpoints/TurboWan2.1-T2V-1.3B-480P-quant.pth \
     --resolution 480p \
     --prompt "A stylish woman walks down a Tokyo street filled with warm glowing neon and animated city signage. She wears a black leather jacket, a long red dress, and black boots, and carries a black purse. She wears sunglasses and red lipstick. She walks confidently and casually. The street is damp and reflective, creating a mirror effect of the colorful lights. Many pedestrians walk about." \
     --num_samples 1 \

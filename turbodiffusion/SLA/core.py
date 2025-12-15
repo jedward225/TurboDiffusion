@@ -193,7 +193,10 @@ class SageSparseLinearAttention(nn.Module):
         km = k.mean(dim=-2, keepdim=True)
         headdim = q.size(-1)
         
-        q_int8, q_scale, k_int8, k_scale = get_vanilla_qk_quant(q, k, km)
+        if arch == "sm90":
+            q_int8, q_scale, k_int8, k_scale = get_vanilla_qk_quant(q, k, km, 64, 128)
+        else:
+            q_int8, q_scale, k_int8, k_scale = get_vanilla_qk_quant(q, k, km, 128, 64)
         lut, valid_block_num = block_map_lut_triton(sparse_map)
         scale = 1.0 / (headdim ** 0.5)
 
