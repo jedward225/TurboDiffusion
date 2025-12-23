@@ -60,7 +60,9 @@ if __name__ == "__main__":
 
     # Handle serve mode
     if args.serve:
-        from turbodiffusion.serve import main as serve_main
+        # Set mode to t2v for the TUI server
+        args.mode = "t2v"
+        from serve.tui import main as serve_main
         serve_main(args)
         exit(0)
 
@@ -77,7 +79,7 @@ if __name__ == "__main__":
     log.info(f"Loading DiT model from {args.dit_path}")
     net = create_model(dit_path=args.dit_path, args=args).cpu()
     torch.cuda.empty_cache()
-    log.success(f"Successfully loaded DiT model.")
+    log.success("Successfully loaded DiT model.")
     
     tokenizer = Wan2pt1VAEInterface(vae_pth=args.vae_path)
 

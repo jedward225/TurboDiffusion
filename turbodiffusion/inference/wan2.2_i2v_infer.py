@@ -37,7 +37,7 @@ torch._dynamo.config.suppress_errors = True
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="TurboDiffusion inference script for Wan2.2 I2V with High/Low Noise models")
-    parser.add_argument("--image_path", type=str, required=True, help="Path to the input image for I2V generation")
+    parser.add_argument("--image_path", type=str, default=None, help="Path to the input image (required unless --serve)")
     parser.add_argument("--high_noise_model_path", type=str, required=True, help="Path to the high-noise model")
     parser.add_argument("--low_noise_model_path", type=str, required=True, help="Path to the low-noise model")
     parser.add_argument("--boundary", type=float, default=0.9, help="Timestep boundary for switching from high to low noise model")
@@ -48,7 +48,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--vae_path", type=str, default="checkpoints/Wan2.1_VAE.pth", help="Path to the Wan2.1 VAE")
     parser.add_argument("--text_encoder_path", type=str, default="checkpoints/models_t5_umt5-xxl-enc-bf16.pth", help="Path to the umT5 text encoder")
     parser.add_argument("--num_frames", type=int, default=81, help="Number of frames to generate")
-    parser.add_argument("--prompt", type=str, required=True, help="Text prompt for video generation")
+    parser.add_argument("--prompt", type=str, default=None, help="Text prompt for video generation (required unless --serve)")
     parser.add_argument("--resolution", default="720p", type=str, help="Resolution of the generated output")
     parser.add_argument("--aspect_ratio", default="16:9", type=str, help="Aspect ratio of the generated output (width:height)")
     parser.add_argument("--adaptive_resolution", action="store_true", help="If set, adapts the output resolution to the input image's aspect ratio, using the area defined by --resolution and --aspect_ratio as a target.")
@@ -59,11 +59,28 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--sla_topk", type=float, default=0.1, help="Top-k ratio for SLA/SageSLA attention")
     parser.add_argument("--quant_linear", action="store_true", help="Whether to replace Linear layers with quantized versions")
     parser.add_argument("--default_norm", action="store_true", help="Whether to replace LayerNorm/RMSNorm layers with faster versions")
+    parser.add_argument("--serve", action="store_true", help="Launch interactive TUI server mode (keeps model loaded)")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_arguments()
+
+    # Handle serve mode
+    if args.serve:
+        # Set mode to i2v for the TUI server
+        args.mode = "i2v"
+        from serve.tui import main as serve_main
+        serve_main(args)
+        exit(0)
+
+    # Validate required args for one-shot mode
+    if args.prompt is None:
+        log.error("--prompt is required (unless using --serve mode)")
+        exit(1)
+    if args.image_path is None:
+        log.error("--image_path is required (unless using --serve mode)")
+        exit(1)
 
     log.info(f"Computing embedding for prompt: {args.prompt}")
     with torch.no_grad():

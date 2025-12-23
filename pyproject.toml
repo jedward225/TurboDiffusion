@@ -49,7 +49,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-turbodiffusion-serve = "turbodiffusion.serve:main"
+turbodiffusion-serve = "turbodiffusion.serve.tui:main"
 
 [project.urls]
 Homepage = "https://github.com/thu-ml/TurboDiffusion"
