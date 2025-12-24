@@ -79,7 +79,7 @@ def generate_t2v(models: dict, args: argparse.Namespace, prompt: str, output_pat
 
     w, h = VIDEO_RES_SIZE_INFO[args.resolution][args.aspect_ratio]
 
-    log.info(f"Computing embedding for prompt: {args.prompt}")
+    log.info(f"Computing embedding for prompt: {prompt}")
     with torch.no_grad():
         text_emb = get_umt5_embedding(
             checkpoint_path=args.text_encoder_path,
@@ -89,7 +89,7 @@ def generate_t2v(models: dict, args: argparse.Namespace, prompt: str, output_pat
     # TODO: adaptively offload t5_encoder to CPU when memory runs low
     # clear_umt5_memory()
 
-    log.info(f"Generating with prompt: {args.prompt}")
+    log.info(f"Generating with prompt: {prompt}")
     condition = {
         "crossattn_emb": repeat(
             text_emb.to(**tensor_kwargs),
@@ -178,7 +178,7 @@ def generate_i2v(models: dict, args: argparse.Namespace, prompt: str,
     low_noise_model = models["low_noise_model"]
     tokenizer = models["tokenizer"]
 
-    log.info(f"Computing embedding for prompt: {args.prompt}")
+    log.info(f"Computing embedding for prompt: {prompt}")
     with torch.no_grad():
         text_emb = get_umt5_embedding(
             checkpoint_path=args.text_encoder_path,
@@ -188,7 +188,7 @@ def generate_i2v(models: dict, args: argparse.Namespace, prompt: str,
     # TODO: adaptively offload t5_encoder to CPU when memory runs low
     # clear_umt5_memory()
 
-    log.info(f"Loading and preprocessing image from: {args.image_path}")
+    log.info(f"Loading and preprocessing image from: {image_path}")
     input_image = Image.open(image_path).convert("RGB")
 
     if args.adaptive_resolution:
@@ -245,7 +245,7 @@ def generate_i2v(models: dict, args: argparse.Namespace, prompt: str,
     y = torch.cat([msk, encoded_latents.to(**tensor_kwargs)], dim=1)
     y = y.repeat(args.num_samples, 1, 1, 1, 1)
 
-    log.info(f"Generating with prompt: {args.prompt}")
+    log.info(f"Generating with prompt: {prompt}")
     condition = {
         "crossattn_emb": repeat(
             text_emb.to(**tensor_kwargs),
